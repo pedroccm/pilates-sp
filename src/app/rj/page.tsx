@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { Studio } from '@/types/studio';
 import GoogleMap from '@/components/GoogleMap';
 import WhatsAppButton from '@/components/WhatsAppButton';
@@ -8,67 +8,34 @@ import PhoneButton from '@/components/PhoneButton';
 import MultiSelectNeighborhoods from '@/components/MultiSelectNeighborhoods';
 import CitySelector from '@/components/CitySelector';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
-import { generateSlug, createUniqueSlug } from '@/utils/slug';
-import { getCityData } from '@/utils/cityData';
+import { usePaginatedStudios } from '@/hooks/usePaginatedStudios';
 import Link from 'next/link';
 
 type ViewMode = 'cards' | 'list' | 'map';
 
 export default function RJPage() {
-  const [studios, setStudios] = useState<Studio[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState(0);
-  const [hasWhatsAppOnly, setHasWhatsAppOnly] = useState(false);
-  const [hasWebsiteOnly, setHasWebsiteOnly] = useState(false);
-
-  useEffect(() => {
-    const loadStudios = async () => {
-      setLoading(true);
-      
-      // Simulate loading time for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Carrega dados do Rio de Janeiro
-      const rjData = getCityData('rj');
-      const studiosWithSlugs = rjData.map((studio, index) => {
-        const existingSlugs = rjData
-          .slice(0, index)
-          .map(s => generateSlug(s.title));
-        
-        return {
-          ...studio,
-          slug: createUniqueSlug(studio.title, existingSlugs)
-        };
-      });
-      
-      setStudios(studiosWithSlugs);
-      setLoading(false);
-    };
-    
-    loadStudios();
-  }, []);
-
-  const neighborhoods = useMemo(() => {
-    const unique = [...new Set(studios.map(studio => studio.neighborhood))];
-    return unique.sort();
-  }, [studios]);
-
-  const filteredStudios = useMemo(() => {
-    return studios.filter(studio => {
-      const matchesSearch = studio.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           studio.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesNeighborhoods = selectedNeighborhoods.length === 0 || 
-                                  selectedNeighborhoods.includes(studio.neighborhood);
-      const matchesRating = studio.totalScore >= minRating;
-      const matchesWhatsApp = !hasWhatsAppOnly || isWhatsAppNumber(studio.phone);
-      const matchesWebsite = !hasWebsiteOnly || (studio.website && studio.website.length > 0);
-      
-      return matchesSearch && matchesNeighborhoods && matchesRating && matchesWhatsApp && matchesWebsite;
-    });
-  }, [studios, searchTerm, selectedNeighborhoods, minRating, hasWhatsAppOnly, hasWebsiteOnly]);
+  
+  const {
+    displayedStudios,
+    filteredStudios,
+    loading,
+    loadingMore,
+    searchTerm,
+    setSearchTerm,
+    selectedNeighborhoods,
+    setSelectedNeighborhoods,
+    minRating,
+    setMinRating,
+    hasWhatsAppOnly,
+    setHasWhatsAppOnly,
+    hasWebsiteOnly,
+    setHasWebsiteOnly,
+    neighborhoods,
+    loadMore,
+    hasMore,
+    allStudios
+  } = usePaginatedStudios({ cityCode: 'rj' });
 
   const StudioCard = ({ studio }: { studio: Studio }) => (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -312,7 +279,8 @@ export default function RJPage() {
 
         <div className="mb-4">
           <p className="text-gray-600">
-            Encontrados <strong>{filteredStudios.length}</strong> estúdios de {studios.length} no total
+            Mostrando <strong>{Math.min(displayedStudios.length, filteredStudios.length)}</strong> de <strong>{filteredStudios.length}</strong> estúdios encontrados 
+            {allStudios.length !== filteredStudios.length && ` (${allStudios.length} no total)`}
           </p>
         </div>
 
@@ -324,15 +292,39 @@ export default function RJPage() {
           </div>
         ) : viewMode === 'list' ? (
           <div>
-            {filteredStudios.map((studio) => (
-              <StudioListItem key={studio.slug} studio={studio} />
+            {displayedStudios.map((studio) => (
+              <StudioListItem key={studio.uniqueId || studio.slug} studio={studio} />
             ))}
+            {hasMore && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredStudios.map((studio) => (
-              <StudioCard key={studio.slug} studio={studio} />
-            ))}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedStudios.map((studio) => (
+                <StudioCard key={studio.uniqueId || studio.slug} studio={studio} />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

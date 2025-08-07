@@ -26,4 +26,5 @@ export interface Studio {
   address: string;
   city: string;
   slug?: string;
+  uniqueId?: string;
 }

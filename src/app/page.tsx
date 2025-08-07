@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { Studio } from '@/types/studio';
 import GoogleMap from '@/components/GoogleMap';
 import WhatsAppButton from '@/components/WhatsAppButton';
@@ -8,67 +8,35 @@ import PhoneButton from '@/components/PhoneButton';
 import MultiSelectNeighborhoods from '@/components/MultiSelectNeighborhoods';
 import CitySelector from '@/components/CitySelector';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
-import { generateSlug, createUniqueSlug } from '@/utils/slug';
-import { getCityData } from '@/utils/cityData';
+import { usePaginatedStudios } from '@/hooks/usePaginatedStudios';
 import Link from 'next/link';
 
 type ViewMode = 'cards' | 'list' | 'map';
 
 export default function Home() {
-  const [studios, setStudios] = useState<Studio[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState(0);
-  const [hasWhatsAppOnly, setHasWhatsAppOnly] = useState(false);
-  const [hasWebsiteOnly, setHasWebsiteOnly] = useState(false);
+  
+  const {
+    displayedStudios,
+    filteredStudios,
+    loading,
+    loadingMore,
+    searchTerm,
+    setSearchTerm,
+    selectedNeighborhoods,
+    setSelectedNeighborhoods,
+    minRating,
+    setMinRating,
+    hasWhatsAppOnly,
+    setHasWhatsAppOnly,
+    hasWebsiteOnly,
+    setHasWebsiteOnly,
+    neighborhoods,
+    loadMore,
+    hasMore,
+    allStudios
+  } = usePaginatedStudios({ cityCode: 'sp' });
 
-  useEffect(() => {
-    const loadStudios = async () => {
-      setLoading(true);
-      
-      // Simulate loading time for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Carrega dados de São Paulo por padrão
-      const spData = getCityData('sp');
-      const studiosWithSlugs = spData.map((studio, index) => {
-        const existingSlugs = spData
-          .slice(0, index)
-          .map(s => generateSlug(s.title));
-        
-        return {
-          ...studio,
-          slug: createUniqueSlug(studio.title, existingSlugs)
-        };
-      });
-      
-      setStudios(studiosWithSlugs);
-      setLoading(false);
-    };
-    
-    loadStudios();
-  }, []);
-
-  const neighborhoods = useMemo(() => {
-    const unique = [...new Set(studios.map(studio => studio.neighborhood))];
-    return unique.sort();
-  }, [studios]);
-
-  const filteredStudios = useMemo(() => {
-    return studios.filter(studio => {
-      const matchesSearch = studio.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           studio.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesNeighborhoods = selectedNeighborhoods.length === 0 || 
-                                  selectedNeighborhoods.includes(studio.neighborhood);
-      const matchesRating = studio.totalScore >= minRating;
-      const matchesWhatsApp = !hasWhatsAppOnly || isWhatsAppNumber(studio.phone);
-      const matchesWebsite = !hasWebsiteOnly || (studio.website && studio.website.length > 0);
-      
-      return matchesSearch && matchesNeighborhoods && matchesRating && matchesWhatsApp && matchesWebsite;
-    });
-  }, [studios, searchTerm, selectedNeighborhoods, minRating, hasWhatsAppOnly, hasWebsiteOnly]);
 
   const StudioCard = ({ studio }: { studio: Studio }) => (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -314,7 +282,10 @@ export default function Home() {
             </div>
             
             <div className="text-gray-600">
-              <span>{filteredStudios.length} estúdios encontrados</span>
+              <span>
+                Mostrando <strong>{Math.min(displayedStudios.length, filteredStudios.length)}</strong> de <strong>{filteredStudios.length}</strong> estúdios encontrados 
+                {allStudios.length !== filteredStudios.length && ` (${allStudios.length} no total)`}
+              </span>
               {selectedNeighborhoods.length > 0 && (
                 <div className="text-sm text-blue-600 mt-1">
                   Filtros: {selectedNeighborhoods.join(', ')}
@@ -328,25 +299,45 @@ export default function Home() {
           <div className="h-[600px]">
             <GoogleMap studios={filteredStudios} />
           </div>
-        ) : (
-          <div className={
-            viewMode === 'cards' 
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-              : 'space-y-4'
-          }>
-            {filteredStudios.map((studio, index) => (
-              <div key={index}>
-                {viewMode === 'cards' ? (
-                  <StudioCard studio={studio} />
-                ) : (
-                  <StudioListItem studio={studio} />
-                )}
-              </div>
+        ) : viewMode === 'list' ? (
+          <div>
+            {displayedStudios.map((studio) => (
+              <StudioListItem key={studio.uniqueId || studio.slug} studio={studio} />
             ))}
+            {hasMore && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedStudios.map((studio) => (
+                <StudioCard key={studio.uniqueId || studio.slug} studio={studio} />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {filteredStudios.length === 0 && (
+        {filteredStudios.length === 0 && !loading && (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">Nenhum estúdio encontrado com os filtros selecionados.</p>
           </div>

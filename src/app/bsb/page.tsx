@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { Studio } from '@/types/studio';
 import GoogleMap from '@/components/GoogleMap';
 import WhatsAppButton from '@/components/WhatsAppButton';
@@ -8,67 +8,35 @@ import PhoneButton from '@/components/PhoneButton';
 import MultiSelectNeighborhoods from '@/components/MultiSelectNeighborhoods';
 import CitySelector from '@/components/CitySelector';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
-import { generateSlug, createUniqueSlug } from '@/utils/slug';
-import { getCityData } from '@/utils/cityData';
+import { usePaginatedStudios } from '@/hooks/usePaginatedStudios';
 import Link from 'next/link';
 
 type ViewMode = 'cards' | 'list' | 'map';
 
 export default function BSBPage() {
-  const [studios, setStudios] = useState<Studio[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState(0);
-  const [hasWhatsAppOnly, setHasWhatsAppOnly] = useState(false);
-  const [hasWebsiteOnly, setHasWebsiteOnly] = useState(false);
+  
+  const {
+    displayedStudios,
+    filteredStudios,
+    loading,
+    loadingMore,
+    searchTerm,
+    setSearchTerm,
+    selectedNeighborhoods,
+    setSelectedNeighborhoods,
+    minRating,
+    setMinRating,
+    hasWhatsAppOnly,
+    setHasWhatsAppOnly,
+    hasWebsiteOnly,
+    setHasWebsiteOnly,
+    neighborhoods,
+    loadMore,
+    hasMore,
+    allStudios
+  } = usePaginatedStudios({ cityCode: 'bsb' });
 
-  useEffect(() => {
-    const loadStudios = async () => {
-      setLoading(true);
-      
-      // Simulate loading time for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Carrega dados de Brasília
-      const bsbData = getCityData('bsb');
-      const studiosWithSlugs = bsbData.map((studio, index) => {
-        const existingSlugs = bsbData
-          .slice(0, index)
-          .map(s => generateSlug(s.title));
-        
-        return {
-          ...studio,
-          slug: createUniqueSlug(studio.title, existingSlugs)
-        };
-      });
-      
-      setStudios(studiosWithSlugs);
-      setLoading(false);
-    };
-    
-    loadStudios();
-  }, []);
-
-  const neighborhoods = useMemo(() => {
-    const unique = [...new Set(studios.map(studio => studio.neighborhood))];
-    return unique.sort();
-  }, [studios]);
-
-  const filteredStudios = useMemo(() => {
-    return studios.filter(studio => {
-      const matchesSearch = studio.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           studio.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesNeighborhoods = selectedNeighborhoods.length === 0 || 
-                                  selectedNeighborhoods.includes(studio.neighborhood);
-      const matchesRating = studio.totalScore >= minRating;
-      const matchesWhatsApp = !hasWhatsAppOnly || isWhatsAppNumber(studio.phone);
-      const matchesWebsite = !hasWebsiteOnly || (studio.website && studio.website.length > 0);
-      
-      return matchesSearch && matchesNeighborhoods && matchesRating && matchesWhatsApp && matchesWebsite;
-    });
-  }, [studios, searchTerm, selectedNeighborhoods, minRating, hasWhatsAppOnly, hasWebsiteOnly]);
 
   const StudioCard = ({ studio }: { studio: Studio }) => (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -133,20 +101,20 @@ export default function BSBPage() {
   );
 
   const StudioListItem = ({ studio }: { studio: Studio }) => (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-      <div className="flex items-start justify-between">
+    <div className="bg-white rounded-lg shadow-md px-6 py-4 hover:shadow-lg transition-shadow">
+      <div className="flex items-center justify-between">
         <div className="flex-1">
           <Link href={`/studios/${studio.slug}`}>
-            <h3 className="font-bold text-lg mb-2 hover:text-blue-600 transition-colors cursor-pointer">
+            <h3 className="font-bold text-lg hover:text-blue-600 transition-colors cursor-pointer">
               {studio.title}
             </h3>
           </Link>
-          <div className="flex items-center mb-2">
-            <div className="flex text-yellow-400">
+          <div className="flex items-center mt-1">
+            <div className="flex text-yellow-400 text-sm">
               {'★'.repeat(Math.floor(studio.totalScore))}
               {'☆'.repeat(5 - Math.floor(studio.totalScore))}
             </div>
-            <span className="ml-2 text-gray-600">({studio.reviewsCount} avaliações)</span>
+            <span className="ml-2 text-gray-600 text-sm">({studio.reviewsCount})</span>
           </div>
           <p className="text-gray-600 text-sm mt-1">{studio.neighborhood}</p>
         </div>
@@ -248,73 +216,85 @@ export default function BSBPage() {
                 <option value={0}>Todas as avaliações</option>
                 <option value={3}>3+ estrelas</option>
                 <option value={4}>4+ estrelas</option>
-                <option value={4.5}>4.5+ estrelas</option>
+                <option value={5}>5 estrelas</option>
               </select>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4 items-center justify-between">
-            <div className="flex gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="flex items-center space-x-4">
               <label className="flex items-center">
                 <input
                   type="checkbox"
                   checked={hasWhatsAppOnly}
                   onChange={(e) => setHasWhatsAppOnly(e.target.checked)}
-                  className="mr-2"
+                  className="mr-2 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                 />
-                Apenas com WhatsApp
+                <span className="text-sm text-gray-700">Apenas com WhatsApp</span>
               </label>
+            </div>
+            
+            <div className="flex items-center space-x-4">
               <label className="flex items-center">
                 <input
                   type="checkbox"
                   checked={hasWebsiteOnly}
                   onChange={(e) => setHasWebsiteOnly(e.target.checked)}
-                  className="mr-2"
+                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                Apenas com Site
+                <span className="text-sm text-gray-700">Apenas com Site</span>
               </label>
             </div>
+          </div>
 
-            <div className="flex gap-2">
+          <div className="flex justify-between items-center">
+            <div className="flex bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('cards')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-md transition-colors ${
                   viewMode === 'cards' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 Cards
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-md transition-colors ${
                   viewMode === 'list' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 Lista
               </button>
               <button
                 onClick={() => setViewMode('map')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-md transition-colors ${
                   viewMode === 'map' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 Mapa
               </button>
             </div>
+            
+            <div className="text-gray-600">
+              <span>
+                Mostrando <strong>{Math.min(displayedStudios.length, filteredStudios.length)}</strong> de <strong>{filteredStudios.length}</strong> estúdios encontrados 
+                {allStudios.length !== filteredStudios.length && ` (${allStudios.length} no total)`}
+              </span>
+              {selectedNeighborhoods.length > 0 && (
+                <div className="text-sm text-blue-600 mt-1">
+                  Filtros: {selectedNeighborhoods.join(', ')}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="mb-4">
-          <p className="text-gray-600">
-            Encontrados <strong>{filteredStudios.length}</strong> estúdios de {studios.length} no total
-          </p>
-        </div>
 
         {viewMode === 'map' ? (
           <div className="bg-white rounded-lg shadow-md">
@@ -324,15 +304,45 @@ export default function BSBPage() {
           </div>
         ) : viewMode === 'list' ? (
           <div>
-            {filteredStudios.map((studio) => (
-              <StudioListItem key={studio.slug} studio={studio} />
+            {displayedStudios.map((studio) => (
+              <StudioListItem key={studio.uniqueId || studio.slug} studio={studio} />
             ))}
+            {hasMore && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredStudios.map((studio) => (
-              <StudioCard key={studio.slug} studio={studio} />
-            ))}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedStudios.map((studio) => (
+                <StudioCard key={studio.uniqueId || studio.slug} studio={studio} />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {filteredStudios.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">Nenhum estúdio encontrado com os filtros selecionados.</p>
           </div>
         )}
       </div>
