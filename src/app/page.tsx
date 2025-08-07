@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Studio } from '@/types/studio';
-import studiosData from '@/data/studios.json';
 import GoogleMap from '@/components/GoogleMap';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import PhoneButton from '@/components/PhoneButton';
 import MultiSelectNeighborhoods from '@/components/MultiSelectNeighborhoods';
+import CitySelector from '@/components/CitySelector';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
 import { generateSlug, createUniqueSlug } from '@/utils/slug';
+import { getCityData } from '@/utils/cityData';
 import Link from 'next/link';
 
 type ViewMode = 'cards' | 'list' | 'map';
@@ -30,8 +31,10 @@ export default function Home() {
       // Simulate loading time for better UX
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const studiosWithSlugs = (studiosData as Studio[]).map((studio, index) => {
-        const existingSlugs = (studiosData as Studio[])
+      // Carrega dados de São Paulo por padrão
+      const spData = getCityData('sp');
+      const studiosWithSlugs = spData.map((studio, index) => {
+        const existingSlugs = spData
           .slice(0, index)
           .map(s => generateSlug(s.title));
         
@@ -209,10 +212,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">
             Estúdios de Pilates em São Paulo
           </h1>
+          <CitySelector currentCity="sp" className="ml-4" />
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">

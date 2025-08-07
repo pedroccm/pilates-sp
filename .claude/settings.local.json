@@ -4,7 +4,10 @@
       "Bash(npm run dev:*)",
       "Bash(cp:*)",
       "Bash(npm run lint)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(move json*.json srcdata)",
+      "Bash(mv:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

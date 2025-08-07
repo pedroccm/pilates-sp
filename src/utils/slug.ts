@@ -23,3 +23,5 @@ export const createUniqueSlug = (title: string, existingSlugs: string[] = []): s
 
   return finalSlug;
 };
+
+export const createSlug = generateSlug;

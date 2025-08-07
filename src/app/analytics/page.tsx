@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import studiosData from '@/data/studios.json';
 import { Studio } from '@/types/studio';
+import CitySelector, { cities } from '@/components/CitySelector';
+import { getCityData, getAllCitiesData, getCityName } from '@/utils/cityData';
 
 interface AnalyticsData {
   totalStudios: number;
@@ -20,6 +21,7 @@ interface AnalyticsData {
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedCity, setSelectedCity] = useState<string>('geral');
 
   useEffect(() => {
     // Aguarda a hidratação completa antes de calcular
@@ -28,10 +30,10 @@ export default function AnalyticsPage() {
     }, 0);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [selectedCity]);
 
   const calculateAnalytics = () => {
-      const studios = studiosData as Studio[];
+      const studios = selectedCity === 'geral' ? getAllCitiesData() : getCityData(selectedCity);
       
       const studiosByNeighborhood = studios.reduce((acc, studio) => {
         const neighborhood = studio.neighborhood || 'Não informado';
@@ -115,7 +117,35 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard de Análise - Estúdios de Pilates</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Dashboard de Análise - Estúdios de Pilates
+            {selectedCity !== 'geral' && (
+              <span className="text-xl text-gray-600 ml-2">
+                - {getCityName(selectedCity)}
+              </span>
+            )}
+          </h1>
+          <div className="flex items-center space-x-4">
+            <select
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+              className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+            >
+              <option value="geral">Geral (Todas as Cidades)</option>
+              {cities.map((city) => (
+                <option key={city.code} value={city.code}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
