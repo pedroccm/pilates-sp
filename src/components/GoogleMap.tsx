@@ -12,9 +12,9 @@ interface GoogleMapProps {
 
 export default function GoogleMap({ studios, onStudioSelect }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
-  const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
+  const [map, setMap] = useState<any>(null);
+  const [markers, setMarkers] = useState<any[]>([]);
+  const [infoWindow, setInfoWindow] = useState<any>(null);
 
   useEffect(() => {
     const initMap = async () => {

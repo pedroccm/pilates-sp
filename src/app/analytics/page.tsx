@@ -52,8 +52,6 @@ export default function AnalyticsPage() {
       // WhatsApp: verifica se o telefone é celular (9 dígitos após DDD)
       const studiosWithWhatsApp = studios.filter(studio => {
         if (!studio.phone) return false;
-        // Remove espaços, parênteses e hífens
-        const cleanPhone = studio.phone.replace(/[\s\-\(\)]/g, '');
         // Verifica se é celular brasileiro: +55 XX 9XXXX-XXXX
         const cellPhonePattern = /\+55\s?\d{2}\s?9\d{4}\-?\d{4}/;
         return cellPhonePattern.test(studio.phone);
