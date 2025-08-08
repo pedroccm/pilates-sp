@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
             Dashboard de Análise - Estúdios de Pilates
             {selectedCity !== 'geral' && (
               <span className="text-xl text-gray-600 ml-2">
-                - {getCityName(selectedCity)}
+                - {cities.find(city => city.code === selectedCity)?.name || selectedCity.toUpperCase()}
               </span>
             )}
           </h1>
