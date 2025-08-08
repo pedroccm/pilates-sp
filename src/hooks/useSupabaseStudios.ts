@@ -82,7 +82,15 @@ export const useSupabaseStudios = ({
         limit: itemsPerPage
       };
 
-      const result = await searchStudios(params);
+      // Add timeout to prevent infinite loading on Netlify
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout - check your internet connection')), 15000)
+      );
+
+      const result = await Promise.race([
+        searchStudios(params),
+        timeoutPromise
+      ]);
 
       if (append) {
         setStudios(prev => [...prev, ...result.studios]);
@@ -97,7 +105,15 @@ export const useSupabaseStudios = ({
 
     } catch (err) {
       console.error('Error loading studios:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao carregar estúdios');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar estúdios';
+      
+      if (errorMessage.includes('timeout') || errorMessage.includes('network')) {
+        setError('Conexão lenta ou instável. Verifique sua internet e tente novamente.');
+      } else if (errorMessage.includes('Failed to fetch')) {
+        setError('Erro de conexão. Verifique se você está conectado à internet.');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
       setLoadingMore(false);

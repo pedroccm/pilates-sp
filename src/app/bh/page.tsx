@@ -11,6 +11,8 @@ import { isWhatsAppNumber } from '@/utils/whatsapp';
 import { useSupabaseStudios } from '@/hooks/useSupabaseStudios';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 type ViewMode = 'cards' | 'list' | 'map';
 
 export default function BHPage() {

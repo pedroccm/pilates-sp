@@ -5,6 +5,8 @@ import { Studio } from '@/types/studio';
 import CitySelector, { cities } from '@/components/CitySelector';
 import { calculateAnalytics } from '@/lib/analytics-api';
 
+export const dynamic = 'force-dynamic';
+
 interface AnalyticsData {
   totalStudios: number;
   studiosByNeighborhood: { [key: string]: number };

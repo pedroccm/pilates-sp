@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+
+// Force dynamic rendering for Netlify
+export const dynamic = 'force-dynamic';
 import { Studio } from '@/types/studio';
 import GoogleMap from '@/components/GoogleMap';
 import WhatsAppButton from '@/components/WhatsAppButton';
