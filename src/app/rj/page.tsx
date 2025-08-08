@@ -8,7 +8,7 @@ import PhoneButton from '@/components/PhoneButton';
 import MultiSelectNeighborhoods from '@/components/MultiSelectNeighborhoods';
 import CitySelector from '@/components/CitySelector';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
-import { usePaginatedStudios } from '@/hooks/usePaginatedStudios';
+import { useSupabaseStudios } from '@/hooks/useSupabaseStudios';
 import Link from 'next/link';
 
 type ViewMode = 'cards' | 'list' | 'map';
@@ -17,10 +17,10 @@ export default function RJPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
   
   const {
-    displayedStudios,
-    filteredStudios,
+    studios,
     loading,
     loadingMore,
+    error,
     searchTerm,
     setSearchTerm,
     selectedNeighborhoods,
@@ -32,10 +32,10 @@ export default function RJPage() {
     hasWebsiteOnly,
     setHasWebsiteOnly,
     neighborhoods,
-    loadMore,
+    totalStudios,
     hasMore,
-    allStudios
-  } = usePaginatedStudios({ cityCode: 'rj' });
+    loadMore
+  } = useSupabaseStudios({ cityCode: 'rj' });
 
   const StudioCard = ({ studio }: { studio: Studio }) => (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -279,20 +279,22 @@ export default function RJPage() {
 
         <div className="mb-4">
           <p className="text-gray-600">
-            Mostrando <strong>{Math.min(displayedStudios.length, filteredStudios.length)}</strong> de <strong>{filteredStudios.length}</strong> estúdios encontrados 
-            {allStudios.length !== filteredStudios.length && ` (${allStudios.length} no total)`}
+            Mostrando <strong>{studios.length}</strong> de <strong>{totalStudios}</strong> estúdios encontrados
           </p>
+          {error && (
+            <p className="text-red-600 text-sm mt-2">❌ {error}</p>
+          )}
         </div>
 
         {viewMode === 'map' ? (
           <div className="bg-white rounded-lg shadow-md">
             <div className="h-[600px] rounded-lg overflow-hidden">
-              <GoogleMap studios={filteredStudios} />
+              <GoogleMap studios={studios} />
             </div>
           </div>
         ) : viewMode === 'list' ? (
           <div>
-            {displayedStudios.map((studio) => (
+            {studios.map((studio) => (
               <StudioListItem key={studio.uniqueId || studio.slug} studio={studio} />
             ))}
             {hasMore && (
@@ -302,7 +304,7 @@ export default function RJPage() {
                   disabled={loadingMore}
                   className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
                 >
-                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${totalStudios - studios.length} restantes)`}
                 </button>
               </div>
             )}
@@ -310,7 +312,7 @@ export default function RJPage() {
         ) : (
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedStudios.map((studio) => (
+              {studios.map((studio) => (
                 <StudioCard key={studio.uniqueId || studio.slug} studio={studio} />
               ))}
             </div>
@@ -321,10 +323,16 @@ export default function RJPage() {
                   disabled={loadingMore}
                   className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
                 >
-                  {loadingMore ? 'Carregando...' : `Carregar mais (${filteredStudios.length - displayedStudios.length} restantes)`}
+                  {loadingMore ? 'Carregando...' : `Carregar mais (${totalStudios - studios.length} restantes)`}
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {studios.length === 0 && !loading && !error && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">Nenhum estúdio encontrado com os filtros selecionados.</p>
           </div>
         )}
       </div>

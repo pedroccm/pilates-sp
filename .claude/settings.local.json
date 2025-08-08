@@ -7,7 +7,8 @@
       "Bash(npm run build:*)",
       "Bash(move json*.json srcdata)",
       "Bash(mv:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

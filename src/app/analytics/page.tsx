@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Studio } from '@/types/studio';
 import CitySelector, { cities } from '@/components/CitySelector';
-import { getCityData, getAllCitiesData, getCityName } from '@/utils/cityData';
+import { calculateAnalytics } from '@/lib/analytics-api';
 
 interface AnalyticsData {
   totalStudios: number;
@@ -21,83 +21,44 @@ interface AnalyticsData {
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState('Iniciando...');
   const [selectedCity, setSelectedCity] = useState<string>('geral');
 
   useEffect(() => {
-    // Aguarda a hidratação completa antes de calcular
-    const timer = setTimeout(() => {
-      calculateAnalytics();
-    }, 0);
-    
-    return () => clearTimeout(timer);
+    loadAnalytics();
   }, [selectedCity]);
 
-  const calculateAnalytics = () => {
-      const studios = selectedCity === 'geral' ? getAllCitiesData() : getCityData(selectedCity);
-      
-      const studiosByNeighborhood = studios.reduce((acc, studio) => {
-        const neighborhood = studio.neighborhood || 'Não informado';
-        acc[neighborhood] = (acc[neighborhood] || 0) + 1;
-        return acc;
-      }, {} as { [key: string]: number });
-
-      // Website: verifica se tem website no JSON (campo opcional)
-      const studiosWithWebsite = studios.filter(studio => 
-        studio.website && studio.website.trim() !== ''
-      ).length;
-
-      // Instagram: verifica se a URL do website contém instagram
-      const studiosWithInstagram = studios.filter(studio => 
-        studio.website && studio.website.toLowerCase().includes('instagram')
-      ).length;
-
-      // WhatsApp: verifica se o telefone é celular (9 dígitos após DDD)
-      const studiosWithWhatsApp = studios.filter(studio => {
-        if (!studio.phone) return false;
-        // Verifica se é celular brasileiro: +55 XX 9XXXX-XXXX
-        const cellPhonePattern = /\+55\s?\d{2}\s?9\d{4}\-?\d{4}/;
-        return cellPhonePattern.test(studio.phone);
-      }).length;
-
-      const studiosWithPhone = studios.filter(studio => 
-        studio.phone && studio.phone.trim() !== ''
-      ).length;
-
-      const totalReviews = studios.reduce((sum, studio) => sum + (studio.reviewsCount || 0), 0);
-      const studiosWithRating = studios.filter(studio => studio.totalScore && studio.totalScore > 0);
-      const averageRating = studiosWithRating.length > 0 
-        ? studiosWithRating.reduce((sum, studio) => sum + studio.totalScore, 0) / studiosWithRating.length 
-        : 0;
-
-      const topRatedStudios = studios
-        .filter(studio => studio.reviewsCount >= 5)
-        .sort((a, b) => b.totalScore - a.totalScore)
-        .slice(0, 10);
-
-      const mostReviewedStudios = studios
-        .sort((a, b) => b.reviewsCount - a.reviewsCount)
-        .slice(0, 10);
-
-      setAnalytics({
-        totalStudios: studios.length,
-        studiosByNeighborhood,
-        studiosWithWebsite,
-        studiosWithInstagram,
-        studiosWithWhatsApp,
-        studiosWithPhone,
-        averageRating,
-        totalReviews,
-        topRatedStudios,
-        mostReviewedStudios
-      });
-      
-      setLoading(false);
-    };
+  const loadAnalytics = async () => {
+    setLoading(true);
+    setLoadingMessage('Conectando com o banco de dados...');
+    
+    try {
+      setLoadingMessage('Carregando dados dos estúdios... (pode levar alguns segundos)');
+      const analyticsData = await calculateAnalytics(selectedCity);
+      setLoadingMessage('Processando estatísticas...');
+      setAnalytics(analyticsData);
+    } catch (error) {
+      console.error('Erro ao carregar analytics:', error);
+      setLoadingMessage('❌ Erro ao carregar dados');
+      setAnalytics(null);
+    } finally {
+      setTimeout(() => setLoading(false), 500); // Pequeno delay para mostrar "Processando"
+    }
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Carregando análises...</div>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mb-6"></div>
+        <div className="text-xl font-semibold text-gray-700 mb-2">Carregando análises...</div>
+        <p className="text-gray-500 text-center max-w-md">
+          {loadingMessage}
+        </p>
+        {selectedCity === 'geral' && (
+          <p className="text-sm text-gray-400 mt-4">
+            💡 Carregando dados de todas as cidades ({`>8.000 estúdios`})
+          </p>
+        )}
       </div>
     );
   }

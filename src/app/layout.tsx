@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Estúdios de Pilates",
   description: "Encontre os melhores estúdios de pilates em São Paulo, Rio de Janeiro, Belo Horizonte, Brasília e Curitiba",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
@@ -26,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
         {children}
       </body>
