@@ -1,11 +1,23 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getBlogCategory, getBlogPosts } from '@/lib/blog-api'
+import { getBlogCategory, getBlogPosts, getBlogCategories } from '@/lib/blog-api'
 import BlogList from '@/components/blog/BlogList'
 
 interface CategoryPageProps {
   params: {
     category: string
+  }
+}
+
+export async function generateStaticParams() {
+  try {
+    const categories = await getBlogCategories()
+    return categories.map((category) => ({
+      category: category.slug,
+    }))
+  } catch (error) {
+    console.error('Error generating static params for categories:', error)
+    return []
   }
 }
 

@@ -1,11 +1,23 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getBlogTag, getBlogPosts } from '@/lib/blog-api'
+import { getBlogTag, getBlogPosts, getBlogTags } from '@/lib/blog-api'
 import BlogList from '@/components/blog/BlogList'
 
 interface TagPageProps {
   params: {
     tag: string
+  }
+}
+
+export async function generateStaticParams() {
+  try {
+    const tags = await getBlogTags()
+    return tags.map((tag) => ({
+      tag: tag.slug,
+    }))
+  } catch (error) {
+    console.error('Error generating static params for tags:', error)
+    return []
   }
 }
 

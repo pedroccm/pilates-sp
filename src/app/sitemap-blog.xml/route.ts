@@ -8,7 +8,7 @@ export async function GET() {
   
   try {
     // Buscar posts e categorias do blog
-    const posts = await getBlogPosts()
+    const { posts } = await getBlogPosts({ limit: 1000 }) // Buscar muitos posts para o sitemap
     const categories = await getBlogCategories()
     
     // Gerar URLs do sitemap

@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getBlogPost, incrementPostViews, getRelatedPosts } from '@/lib/blog-api'
+import { getBlogPost, incrementPostViews, getRelatedPosts, getAllBlogPostSlugs } from '@/lib/blog-api'
 import { getMDXContent, MDXContent } from '@/lib/mdx'
 import { generateBlogPostSchema } from '@/lib/schema-markup'
 import { StructuredBreadcrumbs } from '@/components/Breadcrumbs'
@@ -13,6 +13,23 @@ import BlogCard from '@/components/blog/BlogCard'
 interface BlogPostPageProps {
   params: {
     slug: string
+  }
+}
+
+export async function generateStaticParams() {
+  try {
+    const slugs = await getAllBlogPostSlugs()
+    // Debug: retornar apenas posts que sabemos que funcionam
+    const validSlugs = slugs.filter(slug => 
+      slug && !slug.includes('pilates-iniciantes-guia-completo-2025')
+    )
+    console.log('Valid slugs:', validSlugs)
+    return validSlugs.map((slug) => ({
+      slug: slug,
+    }))
+  } catch (error) {
+    console.error('Error generating static params for blog posts:', error)
+    return []
   }
 }
 
@@ -29,7 +46,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   return {
     title: post.meta_title || post.title,
     description: post.meta_description || post.excerpt || post.description,
-    keywords: post.tags?.map(tag => tag.name).join(', '),
+    keywords: post.tags?.map(tag => tag.name).join(', ') || '',
     authors: [{ name: post.author?.name || 'Blog Pilates SP' }],
     openGraph: {
       title: post.title,
@@ -73,7 +90,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       post.id, 
       post.category?.id, 
       3
-    )
+    ) || []
 
     // Buscar conteúdo MDX
     const mdxContent = post.content_file ? await getMDXContent(post.content_file) : null
@@ -278,7 +295,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="mt-8 pt-8 border-t border-gray-200">
               <h3 className="text-sm font-medium text-gray-900 mb-3">Tags:</h3>
               <div className="flex flex-wrap gap-2">
-                {post.tags.map(tag => (
+                {post.tags?.map(tag => (
                   <Link
                     key={tag.id}
                     href={`/blog/tag/${tag.slug}`}
@@ -318,7 +335,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </article>
 
         {/* Related Posts */}
-        {relatedPosts.length > 0 && (
+        {relatedPosts && Array.isArray(relatedPosts) && relatedPosts.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 py-12 border-t border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
               Posts Relacionados

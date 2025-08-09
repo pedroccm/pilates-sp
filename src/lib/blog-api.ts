@@ -330,6 +330,32 @@ export async function incrementPostViews(slug: string): Promise<void> {
   }
 }
 
+// Buscar todos os slugs dos posts (para generateStaticParams)
+export async function getAllBlogPostSlugs(): Promise<string[]> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('slug')
+      .eq('status', 'published')
+      .lte('published_at', new Date().toISOString())
+
+    if (error) {
+      console.error('Supabase error in getAllBlogPostSlugs:', error)
+      return []
+    }
+
+    if (!data || !Array.isArray(data)) {
+      console.warn('No data or invalid data format in getAllBlogPostSlugs')
+      return []
+    }
+
+    return data.map(post => post.slug).filter(slug => slug && typeof slug === 'string')
+  } catch (error) {
+    console.error('Error fetching blog post slugs:', error)
+    return []
+  }
+}
+
 // Buscar posts relacionados
 export async function getRelatedPosts(
   currentPostId: string,

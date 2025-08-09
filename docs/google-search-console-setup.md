@@ -1,3 +1,4 @@
+ç
 # Google Search Console - Guia de Configuração
 
 ## Passos Para Submissão ao Google Search Console
