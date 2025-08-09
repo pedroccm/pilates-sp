@@ -29,6 +29,8 @@ function dbStudioToStudio(dbStudio: any): Studio {
     url: dbStudio.url,
     imageUrl: dbStudio.image_url,
     website: dbStudio.website,
+    websiteUrl: dbStudio.website,
+    instagramUrl: dbStudio.instagram_url,
     openingHours: dbStudio.opening_hours || [],
     location: dbStudio.location,
     address: dbStudio.address,
@@ -221,4 +223,16 @@ async function getCityStatsFallback() {
   });
 
   return Object.values(statsByCity);
+}
+
+export async function getStudiosWithInstagram(cityCode: string = 'geral'): Promise<Studio[]> {
+  try {
+    const studios = await getAllStudiosForAnalytics(cityCode);
+    return studios.filter(studio => 
+      studio.website && studio.website.toLowerCase().includes('instagram')
+    );
+  } catch (error) {
+    console.error('Error getting studios with Instagram:', error);
+    throw error;
+  }
 }

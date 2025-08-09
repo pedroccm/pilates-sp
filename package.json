@@ -10,9 +10,15 @@
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",
+    "@heroicons/react": "^2.2.0",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next/mdx": "^15.4.6",
     "@supabase/supabase-js": "^2.54.0",
+    "@types/mdx": "^2.0.13",
     "dotenv": "^17.2.1",
     "next": "15.4.5",
+    "next-mdx-remote": "^5.0.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

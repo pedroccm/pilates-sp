@@ -21,6 +21,8 @@ export interface Studio {
   url: string;
   imageUrl: string;
   website?: string;
+  websiteUrl?: string;
+  instagramUrl?: string;
   openingHours: OpeningHours[];
   location: Location;
   address: string;

@@ -1,2 +1,50 @@
+# Robots.txt para Pilates SP - Otimizado para SEO
+# https://pilates-sp.com/robots.txt
+
 User-agent: *
 Allow: /
+
+# Principais páginas para crawling
+Allow: /blog/
+Allow: /blog/categoria/
+Allow: /blog/tag/
+Allow: /sp/
+Allow: /rj/
+Allow: /bh/
+Allow: /bsb/
+Allow: /cwb/
+Allow: /analytics/
+
+# Bloquear páginas administrativas e temporárias
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /test/
+
+# Permitir crawlers de imagens
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: *.jpg
+Allow: *.jpeg
+Allow: *.png
+Allow: *.webp
+Allow: *.svg
+
+# Bots específicos para otimização
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+# Sitemaps
+Sitemap: https://pilates-sp.com/sitemap.xml
+Sitemap: https://pilates-sp.com/sitemap-blog.xml
+Sitemap: https://pilates-sp.com/sitemap-cities.xml
+Sitemap: https://pilates-sp.com/sitemap-neighborhoods.xml
+Sitemap: https://pilates-sp.com/sitemap-studios.xml
+
+# Cache policy hints para crawlers
+# Last updated: 2025-08-09
