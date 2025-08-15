@@ -39,12 +39,12 @@ export function generateBlogPostSchema(post: BlogPost, fullUrl: string): SchemaA
     description: post.excerpt || post.description || '',
     author: {
       '@type': 'Person',
-      name: post.author?.name || 'Pilates SP',
+      name: post.author?.name || 'Studios de Pilates',
       url: post.author?.website || 'https://pilates-sp.com'
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Pilates SP',
+      name: 'Studios de Pilates',
       logo: {
         '@type': 'ImageObject',
         url: 'https://pilates-sp.com/logo.png'
@@ -137,9 +137,9 @@ export function generateWebsiteSchema(): SchemaWebsite {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Pilates SP - Guia Completo de Estúdios de Pilates em São Paulo',
+    name: 'Studios de Pilates - Guia Completo de Studios de Pilates em São Paulo',
     url: 'https://pilates-sp.com',
-    description: 'Encontre os melhores estúdios de Pilates em São Paulo. Compare preços, avaliações e encontre o estúdio ideal para você.',
+    description: 'Encontre os melhores studios de Pilates em São Paulo. Compare preços, avaliações e encontre o studio ideal para você.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {

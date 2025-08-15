@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Estúdios de Pilates",
-  description: "Encontre os melhores estúdios de pilates em São Paulo, Rio de Janeiro, Belo Horizonte, Brasília e Curitiba",
+  title: "Studios de Pilates",
+  description: "Encontre os melhores studios de pilates em São Paulo, Rio de Janeiro, Belo Horizonte, Brasília e Curitiba",
   icons: {
     icon: '/favicon.ico',
   },

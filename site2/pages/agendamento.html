@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento - Studio Serenity</title>
+    <meta name="description" content="Agende seu momento de cuidado no Studio Serenity. Sistema online suave e acolhedor.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/agendamento.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header/Navigation -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="../index.html"><h2>Studio Serenity</h2></a>
+                </div>
+                <div class="nav-menu" id="nav-menu">
+                    <a href="../index.html" class="nav-link">Início</a>
+                    <a href="sobre.html" class="nav-link">Sobre Nós</a>
+                    <a href="servicos.html" class="nav-link">Serviços</a>
+                    <a href="equipe.html" class="nav-link">Equipe</a>
+                    <a href="../index.html#gallery" class="nav-link">Galeria</a>
+                    <a href="../index.html#testimonials" class="nav-link">Depoimentos</a>
+                    <a href="contato.html" class="nav-link">Contato</a>
+                    <a href="agendamento.html" class="nav-cta">Agende sua Aula</a>
+                </div>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main style="padding-top: 80px;">
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <div class="page-header-content">
+                    <h1>Reserve seu Momento</h1>
+                    <p>Escolha o dia perfeito para cuidar de você</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking System -->
+        <section class="booking-section">
+            <div class="container">
+                <div class="booking-container">
+                    <!-- Progress Steps -->
+                    <div class="booking-progress">
+                        <div class="step active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Cuidado</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Data</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Horário</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" data-step="4">
+                            <div class="step-number">4</div>
+                            <div class="step-text">Seus Dados</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Service Selection -->
+                    <div class="booking-step active" id="step-1">
+                        <h2>Escolha seu Cuidado</h2>
+                        <div class="services-selection">
+                            <div class="service-option" data-service="avaliacao-gratuita" data-duration="45">
+                                <div class="service-icon">✨</div>
+                                <h3>Consulta de Acolhimento</h3>
+                                <p>Conversa inicial e avaliação gratuita</p>
+                                <div class="service-price free">GRATUITO</div>
+                            </div>
+                            
+                            <div class="service-option" data-service="pilates-gestante" data-duration="50">
+                                <div class="service-icon">🤱</div>
+                                <h3>Cuidado Gestante</h3>
+                                <p>Acompanhamento especializado para mamães</p>
+                                <div class="service-price">R$ 120/aula</div>
+                            </div>
+                            
+                            <div class="service-option" data-service="pilates-pos-parto" data-duration="50">
+                                <div class="service-icon">🌸</div>
+                                <h3>Recuperação Pós-Parto</h3>
+                                <p>Cuidado suave para nova mamãe</p>
+                                <div class="service-price">R$ 130/aula</div>
+                            </div>
+                            
+                            <div class="service-option" data-service="pilates-feminino" data-duration="50">
+                                <div class="service-icon">🌺</div>
+                                <h3>Pilates Feminino</h3>
+                                <p>Para todas as fases da vida</p>
+                                <div class="service-price">R$ 85/aula</div>
+                            </div>
+                            
+                            <div class="service-option" data-service="pilates-menopausa" data-duration="50">
+                                <div class="service-icon">🦋</div>
+                                <h3>Cuidado na Menopausa</h3>
+                                <p>Apoio especial nesta fase única</p>
+                                <div class="service-price">R$ 110/aula</div>
+                            </div>
+                            
+                            <div class="service-option" data-service="pilates-restaurativo" data-duration="60">
+                                <div class="service-icon">🌙</div>
+                                <h3>Pilates Restaurativo</h3>
+                                <p>Movimentos suaves e relaxamento</p>
+                                <div class="service-price">R$ 95/aula</div>
+                            </div>
+                            
+                            <div class="service-option" data-service="atendimento-personalizado" data-duration="50">
+                                <div class="service-icon">💝</div>
+                                <h3>Cuidado Personalizado</h3>
+                                <p>Atenção exclusiva só para você</p>
+                                <div class="service-price">R$ 180/aula</div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <button class="btn btn-primary" id="next-step-1" disabled>Continuar</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Date Selection -->
+                    <div class="booking-step" id="step-2">
+                        <h2>Escolha sua Data</h2>
+                        <div class="calendar-container">
+                            <div class="calendar-header">
+                                <button class="calendar-nav" id="prev-month">‹</button>
+                                <h3 id="current-month"></h3>
+                                <button class="calendar-nav" id="next-month">›</button>
+                            </div>
+                            <div class="calendar-grid">
+                                <div class="calendar-weekdays">
+                                    <div>Dom</div>
+                                    <div>Seg</div>
+                                    <div>Ter</div>
+                                    <div>Qua</div>
+                                    <div>Qui</div>
+                                    <div>Sex</div>
+                                    <div>Sáb</div>
+                                </div>
+                                <div class="calendar-days" id="calendar-days">
+                                    <!-- Calendar days will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <button class="btn btn-secondary" id="back-step-2">Voltar</button>
+                            <button class="btn btn-primary" id="next-step-2" disabled>Continuar</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Time Selection -->
+                    <div class="booking-step" id="step-3">
+                        <h2>Escolha seu Horário</h2>
+                        <div class="selected-date-info">
+                            <p>Data escolhida: <span id="selected-date-display"></span></p>
+                        </div>
+                        
+                        <div class="time-slots-container">
+                            <div class="time-period">
+                                <h4>Manhã</h4>
+                                <div class="time-slots morning" id="morning-slots">
+                                    <!-- Morning time slots will be generated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <div class="time-period">
+                                <h4>Tarde</h4>
+                                <div class="time-slots afternoon" id="afternoon-slots">
+                                    <!-- Afternoon time slots will be generated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <div class="time-period">
+                                <h4>Noite</h4>
+                                <div class="time-slots evening" id="evening-slots">
+                                    <!-- Evening time slots will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <button class="btn btn-secondary" id="back-step-3">Voltar</button>
+                            <button class="btn btn-primary" id="next-step-3" disabled>Continuar</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Personal Information -->
+                    <div class="booking-step" id="step-4">
+                        <h2>Conte-nos sobre Você</h2>
+                        
+                        <!-- Booking Summary -->
+                        <div class="booking-summary">
+                            <h3>Resumo do seu Agendamento</h3>
+                            <div class="summary-item">
+                                <strong>Cuidado Escolhido:</strong> <span id="summary-service"></span>
+                            </div>
+                            <div class="summary-item">
+                                <strong>Data:</strong> <span id="summary-date"></span>
+                            </div>
+                            <div class="summary-item">
+                                <strong>Horário:</strong> <span id="summary-time"></span>
+                            </div>
+                            <div class="summary-item">
+                                <strong>Duração:</strong> <span id="summary-duration"></span> minutos
+                            </div>
+                            <div class="summary-item price">
+                                <strong>Investimento:</strong> <span id="summary-price"></span>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information Form -->
+                        <form class="booking-form" id="booking-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="client-name">Nome Completo *</label>
+                                    <input type="text" id="client-name" name="name" required placeholder="Como podemos chamá-la?">
+                                </div>
+                                <div class="form-group">
+                                    <label for="client-email">E-mail *</label>
+                                    <input type="email" id="client-email" name="email" required placeholder="seu.email@exemplo.com">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="client-phone">WhatsApp *</label>
+                                    <input type="tel" id="client-phone" name="phone" required placeholder="(11) 99999-9999">
+                                </div>
+                                <div class="form-group">
+                                    <label for="client-age">Idade</label>
+                                    <input type="number" id="client-age" name="age" min="12" max="100" placeholder="Opcional">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="client-experience">Sua Experiência com Pilates</label>
+                                <select id="client-experience" name="experience">
+                                    <option value="">Selecione...</option>
+                                    <option value="nunca-pratiquei">É minha primeira vez</option>
+                                    <option value="iniciante">Sou iniciante (menos de 6 meses)</option>
+                                    <option value="intermediario">Tenho experiência (6 meses a 2 anos)</option>
+                                    <option value="avancado">Sou experiente (mais de 2 anos)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="client-objective">O que você busca?</label>
+                                <select id="client-objective" name="objective">
+                                    <option value="">Selecione...</option>
+                                    <option value="condicionamento">Fortalecimento e condicionamento</option>
+                                    <option value="reabilitacao">Recuperação de lesões</option>
+                                    <option value="postura">Melhorar minha postura</option>
+                                    <option value="flexibilidade">Ganhar flexibilidade</option>
+                                    <option value="relaxamento">Relaxamento e bem-estar</option>
+                                    <option value="gestacao">Cuidados na gestação</option>
+                                    <option value="pos-parto">Recuperação pós-parto</option>
+                                    <option value="menopausa">Apoio na menopausa</option>
+                                    <option value="autoestima">Fortalecer autoestima</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="client-observations">Algo importante que devemos saber?</label>
+                                <textarea id="client-observations" name="observations" rows="3" 
+                                         placeholder="Conte-nos sobre lesões, medicações, medos ou qualquer coisa que considera importante compartilhar. Estamos aqui para acolher você com todo carinho."></textarea>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="terms-agree" required>
+                                    <span class="checkmark"></span>
+                                    Li e aceito os <a href="#" target="_blank">termos de uso</a> e <a href="#" target="_blank">política de privacidade</a>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="newsletter-agree">
+                                    <span class="checkmark"></span>
+                                    Desejo receber dicas de bem-estar e novidades por e-mail
+                                </label>
+                            </div>
+                        </form>
+                        
+                        <div class="step-buttons">
+                            <button class="btn btn-secondary" id="back-step-4">Voltar</button>
+                            <button class="btn btn-primary" id="confirm-booking">Confirmar Agendamento</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Confirmation Modal -->
+        <div class="modal-overlay" id="confirmation-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Agendamento Confirmado! 🌸</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Que alegria ter você conosco!</p>
+                    <p>Vamos conversar pelo WhatsApp para confirmar todos os detalhes do seu cuidado.</p>
+                    
+                    <div class="booking-details">
+                        <h4>Detalhes do seu Agendamento:</h4>
+                        <div class="detail-row">
+                            <strong>Cuidado:</strong> <span id="modal-service"></span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Data:</strong> <span id="modal-date"></span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Horário:</strong> <span id="modal-time"></span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Nome:</strong> <span id="modal-name"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="go-to-whatsapp">Conversar no WhatsApp</button>
+                    <button class="btn btn-secondary" id="close-modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Studio Serenity</h3>
+                    <p>Cuidando do universo feminino através do Pilates desde 2018.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li>📍 Rua das Magnólias, 456</li>
+                        <li>📞 (11) 91234-5678</li>
+                        <li>📧 contato@studioserenity.com.br</li>
+                        <li>⏰ Seg-Dom: 7h-20h</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Studio Serenity. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float Button -->
+    <div class="whatsapp-float">
+        <a href="https://wa.me/5511912345678?text=Olá! Gostaria de conhecer o Studio Serenity 🌸" target="_blank">
+            <div class="whatsapp-icon">💬</div>
+        </a>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <span>↑</span>
+    </button>
+
+    <script src="../js/script.js"></script>
+    <script src="../js/agendamento.js"></script>
+</body>
+</html>

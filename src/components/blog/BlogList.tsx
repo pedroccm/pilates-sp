@@ -119,11 +119,11 @@ export default function BlogList({
             `Posts sobre ${categories.find(c => c.slug === category)?.name || category}` :
             tag ? 
               `Posts com tag "${tags.find(t => t.slug === tag)?.name || tag}"` :
-              'Blog do Pilates SP'
+              'Blog Studios de Pilates'
           }
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Descubra tudo sobre Pilates: guias, benefícios, dicas e os melhores estúdios para sua prática.
+          Descubra tudo sobre Pilates: guias, benefícios, dicas e os melhores studios para sua prática.
         </p>
         <p className="text-sm text-gray-500 mt-2">
           {total.toLocaleString()} {total === 1 ? 'artigo encontrado' : 'artigos encontrados'}

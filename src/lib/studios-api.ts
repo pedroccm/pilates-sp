@@ -54,7 +54,7 @@ export async function searchStudios(params: StudioSearchParams = {}): Promise<St
     hasWhatsAppOnly = false,
     hasWebsiteOnly = false,
     page = 1,
-    limit = 12
+    limit = 100
   } = params
 
   const offset = (page - 1) * limit

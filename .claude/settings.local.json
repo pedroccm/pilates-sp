@@ -9,7 +9,16 @@
       "Bash(mv:*)",
       "Bash(rm:*)",
       "Bash(npm install:*)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(shuf:*)",
+      "WebFetch(domain:www.harmoniaacademia.com.br)",
+      "WebFetch(domain:corpoequilibrioacademia.com.br)",
+      "WebFetch(domain:www.mellofit.com.br)",
+      "WebFetch(domain:www.firstmove.com.br)",
+      "WebFetch(domain:ikigaifisioterapia.com.br)",
+      "WebFetch(domain:academiaequilibrium.com.br)",
+      "WebFetch(domain:pilatescampobelo.com)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

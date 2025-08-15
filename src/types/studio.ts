@@ -27,6 +27,17 @@ export interface Studio {
   location: Location;
   address: string;
   city: string;
-  slug?: string;
+  slug: string;
   uniqueId?: string;
+  types?: string[];
+  
+  // Novos campos adicionados
+  gympass?: boolean;
+  gympass_planos?: string;
+  totalpass?: boolean;
+  totalpass_planos?: string;
+  destaque?: number;
+  imagem_slug?: string;
+  instagram?: string;
+  cliente?: boolean;
 }

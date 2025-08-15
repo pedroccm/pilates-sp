@@ -1,0 +1,29 @@
+{
+    "mcpServers": {
+      "supabase": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@supabase/mcp-server-supabase@latest",
+          "--read-only",
+          "--project-ref=afbyaucsrjsdjwhrlbbk"
+        ],
+        "env": {
+          "SUPABASE_ACCESS_TOKEN": "sb_publishable_hdbEk3NATvt6BH5TlWb2AQ_jjmGjYa7"
+        }
+      },
+      "posthog": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "mcp-remote@latest",
+          "https://mcp.posthog.com/sse",
+          "--header",
+          "Authorization:${POSTHOG_AUTH_HEADER}"
+        ],
+        "env": {
+          "POSTHOG_AUTH_HEADER": "Bearer phx_12nMfTgFPYVki1JGC5uqMpz4BaBLiztmNsq2FX4UHLThYhIQ"
+        }
+      }
+    }
+  }j

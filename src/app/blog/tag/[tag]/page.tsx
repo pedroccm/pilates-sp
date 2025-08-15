@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getBlogTag, getBlogPosts, getBlogTags } from '@/lib/blog-api'
 import BlogList from '@/components/blog/BlogList'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 interface TagPageProps {
   params: {
@@ -32,12 +34,12 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   }
 
   return {
-    title: `Posts sobre ${tag.name} | Blog Pilates SP`,
-    description: tag.description || `Todos os posts com a tag ${tag.name} no Blog Pilates SP. Dicas, guias e informações especializadas.`,
+    title: `Posts sobre ${tag.name} | Blog Studios de Pilates`,
+    description: tag.description || `Todos os posts com a tag ${tag.name} no Blog Studios de Pilates. Dicas, guias e informações especializadas.`,
     keywords: `${tag.name.toLowerCase()}, pilates ${tag.name.toLowerCase()}, blog pilates`,
     openGraph: {
-      title: `Posts sobre ${tag.name} | Blog Pilates SP`,
-      description: tag.description || `Todos os posts com a tag ${tag.name} no Blog Pilates SP.`,
+      title: `Posts sobre ${tag.name} | Blog Studios de Pilates`,
+      description: tag.description || `Todos os posts com a tag ${tag.name} no Blog Studios de Pilates.`,
       type: 'website',
       url: `https://pilates-sp.com/blog/tag/${params.tag}`
     }
@@ -62,6 +64,8 @@ export default async function TagPage({ params }: TagPageProps) {
 
     return (
       <div className="min-h-screen bg-gray-50">
+        <Header />
+        
         {/* Tag Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 py-12">
@@ -91,27 +95,33 @@ export default async function TagPage({ params }: TagPageProps) {
           initialTotal={total}
           tag={params.tag}
         />
+        
+        <Footer />
       </div>
     )
   } catch (error) {
     console.error('Error loading tag page:', error)
     
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Erro ao carregar tag
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Tente novamente em alguns instantes.
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Recarregar
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center flex-1 py-12">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Erro ao carregar tag
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Tente novamente em alguns instantes.
+            </p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              Recarregar
+            </button>
+          </div>
         </div>
+        <Footer />
       </div>
     )
   }

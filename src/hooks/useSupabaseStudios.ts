@@ -8,6 +8,7 @@ interface UseSupabaseStudiosOptions {
   cityCode: string;
   itemsPerPage?: number;
   autoLoad?: boolean;
+  preSelectedNeighborhood?: string;
 }
 
 interface UseSupabaseStudiosReturn {
@@ -36,8 +37,9 @@ interface UseSupabaseStudiosReturn {
 
 export const useSupabaseStudios = ({
   cityCode,
-  itemsPerPage = 12,
-  autoLoad = true
+  itemsPerPage = 100,
+  autoLoad = true,
+  preSelectedNeighborhood
 }: UseSupabaseStudiosOptions): UseSupabaseStudiosReturn => {
   // Data states
   const [studios, setStudios] = useState<Studio[]>([]);
@@ -50,7 +52,9 @@ export const useSupabaseStudios = ({
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([]);
+  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>(
+    preSelectedNeighborhood ? [preSelectedNeighborhood] : []
+  );
   const [minRating, setMinRating] = useState(0);
   const [hasWhatsAppOnly, setHasWhatsAppOnly] = useState(false);
   const [hasWebsiteOnly, setHasWebsiteOnly] = useState(false);
@@ -60,6 +64,9 @@ export const useSupabaseStudios = ({
   const [totalPages, setTotalPages] = useState(0);
   const [totalStudios, setTotalStudios] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+
+  // Check if any filters are active (neighborhood filter disables pagination)
+  const hasActiveFilters = selectedNeighborhoods.length > 0;
 
   // Load studios based on current filters and pagination
   const loadStudios = useCallback(async (page: number = 1, append: boolean = false) => {
@@ -78,8 +85,9 @@ export const useSupabaseStudios = ({
         minRating,
         hasWhatsAppOnly,
         hasWebsiteOnly,
-        page,
-        limit: itemsPerPage
+        // When neighborhood filter is active, load all results (disable pagination)
+        page: hasActiveFilters ? 1 : page,
+        limit: hasActiveFilters ? 1000 : itemsPerPage
       };
 
       // Add timeout to prevent infinite loading on Netlify
@@ -101,7 +109,8 @@ export const useSupabaseStudios = ({
       setCurrentPage(result.page);
       setTotalPages(result.totalPages);
       setTotalStudios(result.total);
-      setHasMore(result.hasMore);
+      // When filters are active, disable pagination (hasMore = false)
+      setHasMore(hasActiveFilters ? false : result.hasMore);
 
     } catch (err) {
       console.error('Error loading studios:', err);
@@ -118,7 +127,7 @@ export const useSupabaseStudios = ({
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [cityCode, searchTerm, selectedNeighborhoods, minRating, hasWhatsAppOnly, hasWebsiteOnly, itemsPerPage]);
+  }, [cityCode, searchTerm, selectedNeighborhoods, minRating, hasWhatsAppOnly, hasWebsiteOnly, itemsPerPage, hasActiveFilters]);
 
   // Load neighborhoods for the city
   const loadNeighborhoods = useCallback(async () => {

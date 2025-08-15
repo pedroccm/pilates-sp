@@ -5,12 +5,12 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Blog Pilates SP | Guias, Dicas e Benefícios do Pilates',
-  description: 'Descubra tudo sobre Pilates no nosso blog: guias para iniciantes, benefícios científicos, melhores estúdios e dicas de especialistas.',
+  title: 'Blog Studios de Pilates | Guias, Dicas e Benefícios do Pilates',
+  description: 'Descubra tudo sobre Pilates no nosso blog: guias para iniciantes, benefícios científicos, melhores studios e dicas de especialistas.',
   keywords: 'blog pilates, guia pilates, benefícios pilates, dicas pilates, pilates iniciantes',
   openGraph: {
-    title: 'Blog Pilates SP | Guias, Dicas e Benefícios do Pilates',
-    description: 'Descubra tudo sobre Pilates no nosso blog: guias para iniciantes, benefícios científicos, melhores estúdios e dicas de especialistas.',
+    title: 'Blog Studios de Pilates | Guias, Dicas e Benefícios do Pilates',
+    description: 'Descubra tudo sobre Pilates no nosso blog: guias para iniciantes, benefícios científicos, melhores studios e dicas de especialistas.',
     type: 'website',
     url: 'https://pilates-sp.com/blog'
   }

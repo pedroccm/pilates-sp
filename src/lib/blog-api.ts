@@ -7,6 +7,7 @@ export interface BlogPost {
   slug: string
   description?: string
   excerpt?: string
+  content?: string
   content_file?: string
   meta_title?: string
   meta_description?: string
@@ -224,6 +225,7 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
       slug: data.slug,
       description: data.description,
       excerpt: data.excerpt,
+      content: data.content,
       content_file: data.content_file,
       meta_title: data.meta_title,
       meta_description: data.meta_description,
@@ -414,5 +416,60 @@ export async function getRelatedPosts(
   } catch (error) {
     console.error('Error fetching related posts:', error)
     return []
+  }
+}
+
+// Função para buscar dados do dashboard admin
+export async function getDashboardData() {
+  try {
+    // Buscar total de posts
+    const { count: postsCount, error: postsError } = await supabase
+      .from('blog_posts')
+      .select('*', { count: 'exact', head: true })
+
+    if (postsError) throw postsError
+
+    // Buscar total de autores
+    const { count: authorsCount, error: authorsError } = await supabase
+      .from('blog_authors')
+      .select('*', { count: 'exact', head: true })
+
+    if (authorsError) throw authorsError
+
+    // Buscar posts recentes (últimos 5)
+    const { data: recentPosts, error: recentPostsError } = await supabase
+      .from('blog_posts')
+      .select(`
+        id,
+        title,
+        slug,
+        published_at,
+        views,
+        blog_authors(name)
+      `)
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    if (recentPostsError) throw recentPostsError
+
+    return {
+      totalPosts: postsCount || 0,
+      totalAuthors: authorsCount || 0,
+      recentPosts: recentPosts?.map(post => ({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        published_at: post.published_at,
+        views: post.views,
+        author: post.blog_authors
+      })) || []
+    }
+  } catch (error) {
+    console.error('Erro ao buscar dados do dashboard:', error)
+    return {
+      totalPosts: 0,
+      totalAuthors: 0,
+      recentPosts: []
+    }
   }
 }

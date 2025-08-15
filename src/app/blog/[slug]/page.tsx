@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getBlogPost, incrementPostViews, getRelatedPosts, getAllBlogPostSlugs } from '@/lib/blog-api'
-import { getMDXContent, MDXContent } from '@/lib/mdx'
 import { generateBlogPostSchema } from '@/lib/schema-markup'
 import { StructuredBreadcrumbs } from '@/components/Breadcrumbs'
 import Header from '@/components/Header'
@@ -19,12 +18,7 @@ interface BlogPostPageProps {
 export async function generateStaticParams() {
   try {
     const slugs = await getAllBlogPostSlugs()
-    // Debug: retornar apenas posts que sabemos que funcionam
-    const validSlugs = slugs.filter(slug => 
-      slug && !slug.includes('pilates-iniciantes-guia-completo-2025')
-    )
-    console.log('Valid slugs:', validSlugs)
-    return validSlugs.map((slug) => ({
+    return slugs.map((slug) => ({
       slug: slug,
     }))
   } catch (error) {
@@ -47,7 +41,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     title: post.meta_title || post.title,
     description: post.meta_description || post.excerpt || post.description,
     keywords: post.tags?.map(tag => tag.name).join(', ') || '',
-    authors: [{ name: post.author?.name || 'Blog Pilates SP' }],
+    authors: [{ name: post.author?.name || 'Blog Studios de Pilates' }],
     openGraph: {
       title: post.title,
       description: post.excerpt || post.description || '',
@@ -92,8 +86,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       3
     ) || []
 
-    // Buscar conteúdo MDX
-    const mdxContent = post.content_file ? await getMDXContent(post.content_file) : null
+    // O conteúdo agora vem direto do banco de dados
 
     const formatDate = (dateString?: string) => {
       if (!dateString) return ''
@@ -229,33 +222,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         {/* Content */}
         <article className="max-w-4xl mx-auto px-4 py-12">
           <div className="prose prose-lg max-w-none">
-            {mdxContent && mdxContent.content ? (
-              <MDXContent source={mdxContent.content} />
+            {post.content ? (
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
             ) : (
-              <>
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-yellow-800">
-                        Conteúdo MDX não encontrado
-                      </h3>
-                      <div className="mt-2 text-sm text-yellow-700">
-                        <p>
-                          Arquivo esperado: <code>{post.content_file}</code>
-                        </p>
-                        <p className="mt-1">O conteúdo placeholder será exibido abaixo.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Placeholder content based on title */}
-                {post.title.includes('Iniciantes') && (
+              <div>
+                <p className="text-gray-600 mb-6">
+                  {post.description || post.excerpt || 'Conteúdo em breve...'}
+                </p>
+                
+                {/* Conteúdo placeholder baseado no título */}
+                {post.title.toLowerCase().includes('iniciantes') && (
                   <div>
                     <h2>Por que começar no Pilates?</h2>
                     <p>O Pilates é uma modalidade completa que trabalha corpo e mente, oferecendo benefícios únicos para pessoas de todas as idades e níveis de condicionamento físico.</p>
@@ -274,7 +250,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </div>
                 )}
 
-                {post.title.includes('Benefícios') && (
+                {post.title.toLowerCase().includes('benefício') && (
                   <div>
                     <h2>Benefícios comprovados cientificamente</h2>
                     <p>Diversos estudos demonstram a eficácia do Pilates para melhorar a saúde física e mental.</p>
@@ -286,7 +262,23 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     <p>Os exercícios promovem alongamento e maior amplitude de movimento.</p>
                   </div>
                 )}
-              </>
+
+                {post.title.toLowerCase().includes('escolher') && (
+                  <div>
+                    <h2>Como escolher o melhor estúdio</h2>
+                    <p>Encontrar o estúdio de Pilates ideal envolve considerar diversos fatores importantes.</p>
+                    
+                    <h2>Principais critérios de avaliação</h2>
+                    <ul>
+                      <li><strong>Localização:</strong> Proximidade de casa ou trabalho</li>
+                      <li><strong>Qualificação dos instrutores:</strong> Certificações e experiência</li>
+                      <li><strong>Equipamentos:</strong> Estado e variedade dos aparelhos</li>
+                      <li><strong>Ambiente:</strong> Limpeza e organização do espaço</li>
+                      <li><strong>Horários:</strong> Flexibilidade e disponibilidade</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

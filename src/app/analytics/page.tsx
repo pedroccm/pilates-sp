@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Studio } from '@/types/studio';
+import Link from 'next/link';
 import CitySelector, { cities } from '@/components/CitySelector';
-import { calculateAnalytics, getStudiosWithInstagram } from '@/lib/analytics-api';
+import { calculateAnalytics, getStudiosWithInstagram, getAllNeighborhoodsWithCount, neighborhoodToSlug } from '@/lib/analytics-api';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,10 +30,19 @@ export default function AnalyticsPage() {
   const [showInstagramStudios, setShowInstagramStudios] = useState(false);
   const [instagramStudios, setInstagramStudios] = useState<Studio[]>([]);
   const [loadingInstagram, setLoadingInstagram] = useState(false);
+  const [cityStats, setCityStats] = useState<{ [key: string]: number }>({});
+  const [loadingCityStats, setLoadingCityStats] = useState(true);
+  const [showAllNeighborhoods, setShowAllNeighborhoods] = useState(false);
+  const [allNeighborhoods, setAllNeighborhoods] = useState<{ neighborhood: string, count: number }[]>([]);
+  const [loadingNeighborhoods, setLoadingNeighborhoods] = useState(false);
 
   useEffect(() => {
     loadAnalytics();
   }, [selectedCity]);
+
+  useEffect(() => {
+    loadCityStats();
+  }, []);
 
   const loadAnalytics = async () => {
     setLoading(true);
@@ -49,6 +59,46 @@ export default function AnalyticsPage() {
       setAnalytics(null);
     } finally {
       setTimeout(() => setLoading(false), 500); // Pequeno delay para mostrar "Processando"
+    }
+  };
+
+  const loadCityStats = async () => {
+    setLoadingCityStats(true);
+    try {
+      const response = await fetch('/api/analytics/cities');
+      if (response.ok) {
+        const stats = await response.json();
+        setCityStats(stats);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas das cidades:', error);
+    } finally {
+      setLoadingCityStats(false);
+    }
+  };
+
+  const handleNeighborhoodsClick = async () => {
+    if (showAllNeighborhoods) {
+      setShowAllNeighborhoods(false);
+    } else {
+      try {
+        setLoadingNeighborhoods(true);
+        const neighborhoods = await getAllNeighborhoodsWithCount(selectedCity);
+        setAllNeighborhoods(neighborhoods);
+        setShowAllNeighborhoods(true);
+        
+        // Scroll para a seção da lista após um pequeno delay
+        setTimeout(() => {
+          document.getElementById('neighborhoods-list')?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 100);
+      } catch (error) {
+        console.error('Erro ao carregar bairros:', error);
+      } finally {
+        setLoadingNeighborhoods(false);
+      }
     }
   };
 
@@ -214,20 +264,98 @@ export default function AnalyticsPage() {
             <p className="text-2xl font-bold text-purple-600">{analytics.totalReviews.toLocaleString('pt-BR')}</p>
           </div>
           
-          <div className="bg-white rounded-lg shadow p-6">
+          <div 
+            className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:bg-indigo-50"
+            onClick={handleNeighborhoodsClick}
+          >
             <h3 className="text-sm font-medium text-gray-500">Bairros Cobertos</h3>
             <p className="text-2xl font-bold text-indigo-600">{Object.keys(analytics.studiosByNeighborhood).length}</p>
+            {loadingNeighborhoods ? (
+              <p className="text-xs text-blue-500 mt-2">⏳ Carregando...</p>
+            ) : (
+              <p className="text-xs text-blue-500 mt-2">👆 Clique para ver todos os bairros</p>
+            )}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Studios por Cidade</h2>
+            {loadingCityStats ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <p className="text-sm text-gray-500">Carregando estatísticas...</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {/* Ordenar cidades por número de studios */}
+                {cities
+                  .map(city => ({ ...city, count: cityStats[city.code] || 0 }))
+                  .sort((a, b) => b.count - a.count)
+                  .map((city) => (
+                    <div key={city.code} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">{city.name}</span>
+                        <span className="text-xs text-gray-500 ml-2">({city.code.toUpperCase()})</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-bold text-blue-600">
+                          {city.count.toLocaleString()}
+                        </span>
+                        <button
+                          onClick={() => setSelectedCity(city.code)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                            selectedCity === city.code 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-gray-200 text-gray-700 hover:bg-blue-100'
+                          }`}
+                        >
+                          {selectedCity === city.code ? 'Ativo' : 'Ver'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                <div className="pt-3 border-t-2 border-blue-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold text-blue-700">🇧🇷 Todas as Cidades</span>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg font-bold text-blue-800">
+                        {Object.values(cityStats).reduce((sum, count) => sum + count, 0).toLocaleString()}
+                      </span>
+                      <button
+                        onClick={() => setSelectedCity('geral')}
+                        className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                          selectedCity === 'geral' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-200 text-gray-700 hover:bg-blue-100'
+                        }`}
+                      >
+                        {selectedCity === 'geral' ? 'Ativo' : 'Ver'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold mb-4">Top 10 Bairros com Mais Estúdios</h2>
             <div className="space-y-3">
               {topNeighborhoods.map(([neighborhood, count], index) => (
                 <div key={neighborhood} className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-700">
-                    {index + 1}. {neighborhood}
+                    {index + 1}. {selectedCity !== 'geral' ? (
+                      <Link
+                        href={`/${selectedCity}/${neighborhoodToSlug(neighborhood)}`}
+                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                        title={`Ver studios em ${neighborhood}`}
+                      >
+                        {neighborhood}
+                      </Link>
+                    ) : (
+                      <span>{neighborhood}</span>
+                    )}
                   </span>
                   <div className="flex items-center">
                     <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
@@ -447,6 +575,130 @@ export default function AnalyticsPage() {
               <div className="bg-white rounded-lg shadow p-8 text-center">
                 <p className="text-gray-500 text-lg">
                   Nenhum estúdio com Instagram encontrado
+                  {selectedCity !== 'geral' && (
+                    <span> em {cities.find(city => city.code === selectedCity)?.name}</span>
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {showAllNeighborhoods && (
+          <div id="neighborhoods-list" className="mt-12">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-indigo-600">
+                  Todos os Bairros
+                  {selectedCity !== 'geral' && (
+                    <span className="text-xl text-gray-600 ml-2">
+                      - {cities.find(city => city.code === selectedCity)?.name || selectedCity.toUpperCase()}
+                    </span>
+                  )}
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {allNeighborhoods.length} bairros encontrados
+                  {selectedCity === 'geral' && (
+                    <span className="block text-xs text-gray-500 mt-1">
+                      💡 Selecione uma cidade específica para acessar as páginas dos bairros
+                    </span>
+                  )}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAllNeighborhoods(false)}
+                className="text-gray-500 hover:text-gray-700 text-3xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            {allNeighborhoods.length > 0 ? (
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          #
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Bairro
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Quantidade de Studios
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          % do Total
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {allNeighborhoods.map((neighborhood, index) => (
+                        <tr key={neighborhood.neighborhood + index} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {index + 1}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {selectedCity !== 'geral' ? (
+                                <Link
+                                  href={`/${selectedCity}/${neighborhoodToSlug(neighborhood.neighborhood)}`}
+                                  className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                                  title={`Ver studios em ${neighborhood.neighborhood}`}
+                                >
+                                  {neighborhood.neighborhood}
+                                </Link>
+                              ) : (
+                                <span>{neighborhood.neighborhood}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="text-sm font-bold text-indigo-600 mr-3">
+                                {neighborhood.count}
+                              </div>
+                              <div className="w-20 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-indigo-600 h-2 rounded-full" 
+                                  style={{ 
+                                    width: `${(neighborhood.count / allNeighborhoods[0].count) * 100}%` 
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {((neighborhood.count / analytics.totalStudios) * 100).toFixed(1)}%
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Summary section */}
+                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                  <div className="flex justify-between items-center text-sm">
+                    <div>
+                      <strong>Resumo:</strong>
+                      <span className="ml-2">
+                        {allNeighborhoods.filter(n => n.count === 1).length} bairros com apenas 1 studio
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">
+                        {allNeighborhoods.filter(n => n.count > 1).length} bairros com mais de 1 studio
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <p className="text-gray-500 text-lg">
+                  Nenhum bairro encontrado
                   {selectedCity !== 'geral' && (
                     <span> em {cities.find(city => city.code === selectedCity)?.name}</span>
                   )}

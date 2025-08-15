@@ -11,8 +11,7 @@ export default function Header() {
 
   const navigation = [
     { name: 'Estúdios', href: '/' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Analytics', href: '/analytics' }
+    { name: 'Blog', href: '/blog' }
   ]
 
   const isActive = (href: string) => {
@@ -22,11 +21,16 @@ export default function Header() {
   }
 
   const getCurrentCity = () => {
-    if (pathname === '/rj') return 'rj'
-    if (pathname === '/bh') return 'bh' 
-    if (pathname === '/bsb') return 'bsb'
-    if (pathname === '/cwb') return 'cwb'
-    return 'sp'
+    // Limpar pathname removendo barra final se existir
+    const cleanPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname
+    const segments = cleanPath.split('/')
+    
+    // Rota dinâmica [city]
+    if (segments.length === 2 && segments[1] && segments[1] !== 'blog' && segments[1] !== 'studios' && segments[1] !== 'analytics' && segments[1] !== 'admin' && segments[1] !== 'test') {
+      return segments[1] // cityCode da rota dinâmica
+    }
+    
+    return 'sp' // default (home)
   }
 
   return (
@@ -41,7 +45,7 @@ export default function Header() {
                   <span className="text-white font-bold text-sm">P</span>
                 </div>
                 <span className="ml-2 text-xl font-bold text-gray-900">
-                  Pilates SP
+                  Studios de Pilates
                 </span>
               </div>
             </Link>

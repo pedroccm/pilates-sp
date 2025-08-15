@@ -236,3 +236,105 @@ export async function getStudiosWithInstagram(cityCode: string = 'geral'): Promi
     throw error;
   }
 }
+
+export async function getAllNeighborhoodsWithCount(cityCode: string = 'geral'): Promise<{ neighborhood: string, count: number }[]> {
+  try {
+    const studios = await getAllStudiosForAnalytics(cityCode);
+    
+    const neighborhoodCounts = studios.reduce((acc, studio) => {
+      const neighborhood = studio.neighborhood || 'Não informado';
+      acc[neighborhood] = (acc[neighborhood] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Convert to array and sort by count (descending)
+    const neighborhoodsArray = Object.entries(neighborhoodCounts)
+      .map(([neighborhood, count]) => ({ neighborhood, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return neighborhoodsArray;
+  } catch (error) {
+    console.error('Error getting neighborhoods with count:', error);
+    throw error;
+  }
+}
+
+// Helper function to convert neighborhood name to URL-friendly slug
+export function neighborhoodToSlug(neighborhood: string): string {
+  return neighborhood
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .trim()
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
+// Helper function to convert slug back to neighborhood name (for database search)
+export function slugToNeighborhood(slug: string, allNeighborhoods: string[]): string | null {
+  const slugifiedNeighborhoods = allNeighborhoods.map(n => ({
+    original: n,
+    slug: neighborhoodToSlug(n)
+  }));
+  
+  const found = slugifiedNeighborhoods.find(n => n.slug === slug);
+  return found ? found.original : null;
+}
+
+export async function getStudiosByNeighborhood(cityCode: string, neighborhood: string): Promise<Studio[]> {
+  try {
+    console.log(`🔄 Carregando estúdios do bairro: ${neighborhood} em ${cityCode}...`);
+    
+    let query = supabase
+      .from('studios')
+      .select('*')
+      .eq('neighborhood', neighborhood)
+      .order('title');
+
+    if (cityCode && cityCode !== 'geral') {
+      query = query.eq('city_code', cityCode);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching studios by neighborhood:', error);
+      throw new Error(`Failed to fetch studios: ${error.message}`);
+    }
+
+    console.log(`✅ ${data?.length || 0} estúdios carregados do bairro ${neighborhood}`);
+    return data ? data.map(dbStudioToStudio) : [];
+  } catch (error) {
+    console.error('Error in getStudiosByNeighborhood:', error);
+    throw error;
+  }
+}
+
+export async function getNeighborhoodStats(cityCode: string, neighborhood: string) {
+  try {
+    const studios = await getStudiosByNeighborhood(cityCode, neighborhood);
+    
+    const stats = {
+      totalStudios: studios.length,
+      studiosWithWebsite: studios.filter(s => s.website && s.website.trim() !== '').length,
+      studiosWithInstagram: studios.filter(s => s.website && s.website.toLowerCase().includes('instagram')).length,
+      studiosWithPhone: studios.filter(s => s.phone && s.phone.trim() !== '').length,
+      averageRating: 0,
+      totalReviews: studios.reduce((sum, s) => sum + (s.reviewsCount || 0), 0),
+      topRatedStudios: studios.filter(s => s.totalScore > 0 && s.reviewsCount > 0)
+        .sort((a, b) => b.totalScore - a.totalScore).slice(0, 5)
+    };
+
+    const validScores = studios.filter(s => s.totalScore > 0);
+    if (validScores.length > 0) {
+      stats.averageRating = Math.round((validScores.reduce((sum, s) => sum + s.totalScore, 0) / validScores.length) * 10) / 10;
+    }
+
+    return stats;
+  } catch (error) {
+    console.error('Error getting neighborhood stats:', error);
+    throw error;
+  }
+}

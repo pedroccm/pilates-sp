@@ -1,0 +1,6 @@
+- Criar os campos Gympass e totalpass
+- Melhorar o layout dos cards
+- Mapa da Interna com o zoom mto alto
+- SEO - http://localhost:3001/studios/clinica-de-fisioterapia-wp-pilates-e-saude/ é melhor que /sp/bairro/estudio
+- Studios destacados aparecer em primeiro
+redirecionar e tratar 404

@@ -46,10 +46,10 @@ export default function Footer() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">P</span>
               </div>
-              <span className="ml-2 text-xl font-bold">Pilates SP</span>
+              <span className="ml-2 text-xl font-bold">Studios de Pilates</span>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              A maior plataforma para encontrar estúdios de Pilates no Brasil. 
+              A maior plataforma para encontrar studios de Pilates no Brasil. 
               Compare preços, avaliações e encontre o ideal para você.
             </p>
             <div className="flex space-x-4">
@@ -157,7 +157,7 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Newsletter Pilates SP</h3>
+              <h3 className="text-lg font-semibold mb-2">Newsletter Studios de Pilates</h3>
               <p className="text-gray-400 text-sm">
                 Receba dicas, guias e novidades sobre Pilates direto no seu email.
               </p>
@@ -179,7 +179,7 @@ export default function Footer() {
         <div className="mt-8 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">
-              © {currentYear} Pilates SP. Todos os direitos reservados.
+              © {currentYear} Studios de Pilates. Todos os direitos reservados.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link href="/privacidade" className="text-gray-400 hover:text-white text-sm transition-colors">

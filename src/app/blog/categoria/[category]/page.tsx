@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getBlogCategory, getBlogPosts, getBlogCategories } from '@/lib/blog-api'
 import BlogList from '@/components/blog/BlogList'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 interface CategoryPageProps {
   params: {
@@ -32,12 +34,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 
   return {
-    title: `${category.name} | Blog Pilates SP`,
-    description: category.description || `Todos os posts sobre ${category.name} no Blog Pilates SP. Dicas, guias e informações especializadas.`,
+    title: `${category.name} | Blog Studios de Pilates`,
+    description: category.description || `Todos os posts sobre ${category.name} no Blog Studios de Pilates. Dicas, guias e informações especializadas.`,
     keywords: `${category.name.toLowerCase()}, pilates ${category.name.toLowerCase()}, blog pilates`,
     openGraph: {
-      title: `${category.name} | Blog Pilates SP`,
-      description: category.description || `Todos os posts sobre ${category.name} no Blog Pilates SP.`,
+      title: `${category.name} | Blog Studios de Pilates`,
+      description: category.description || `Todos os posts sobre ${category.name} no Blog Studios de Pilates.`,
       type: 'website',
       url: `https://pilates-sp.com/blog/categoria/${params.category}`
     }
@@ -62,6 +64,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
     return (
       <div className="min-h-screen bg-gray-50">
+        <Header />
+        
         {/* Category Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 py-12">
@@ -98,27 +102,33 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           initialTotal={total}
           category={params.category}
         />
+        
+        <Footer />
       </div>
     )
   } catch (error) {
     console.error('Error loading category page:', error)
     
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Erro ao carregar categoria
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Tente novamente em alguns instantes.
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Recarregar
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center flex-1 py-12">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Erro ao carregar categoria
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Tente novamente em alguns instantes.
+            </p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              Recarregar
+            </button>
+          </div>
         </div>
+        <Footer />
       </div>
     )
   }
