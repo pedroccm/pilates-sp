@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import createMDX from '@next/mdx'
 
 const nextConfig: NextConfig = {
   // Removido 'output: export' para habilitar ISR
@@ -13,15 +12,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx']
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx']
 };
 
-const withMDX = createMDX({
-  // Add markdown plugins here, as desired
-  options: {
-    remarkPlugins: [],
-    rehypePlugins: [],
-  },
-})
-
-export default withMDX(nextConfig);
+export default nextConfig;

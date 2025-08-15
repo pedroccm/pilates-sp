@@ -8,6 +8,7 @@ import GoogleMap from '@/components/GoogleMap';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
 import { getStudioBySlug } from '@/lib/studios-api';
 import { supabase } from '@/lib/supabase';
+import { getStudioImageUrl } from '@/lib/image-utils';
 
 interface PageProps {
   params: {
@@ -77,7 +78,7 @@ export default async function StudioPage({ params }: PageProps) {
             {/* Studio Header */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
               <img 
-                src={studio.imageUrl} 
+                src={getStudioImageUrl(studio.imageUrl || studio, 'original')} 
                 alt={studio.title}
                 className="w-full h-64 object-cover"
               />

@@ -3,6 +3,7 @@ import { Studio } from '@/types/studio'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import PhoneButton from '@/components/PhoneButton'
 import { isWhatsAppNumber } from '@/utils/whatsapp'
+import { getStudioImageUrl } from '@/lib/image-utils'
 
 interface StudioCardProps {
   studio: Studio
@@ -13,7 +14,7 @@ export default function StudioCard({ studio }: StudioCardProps) {
     <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-50 overflow-hidden group">
       <div className="relative">
         <img 
-          src={studio.imageUrl || '/placeholder-studio.jpg'} 
+          src={getStudioImageUrl(studio.imageUrl || studio, 'original')} 
           alt={studio.title}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {

@@ -3,6 +3,7 @@ import { Studio } from '@/types/studio';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import PhoneButton from '@/components/PhoneButton';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
+import { getStudioImageUrl } from '@/lib/image-utils';
 
 interface HomeStudioCardProps {
   studio: Studio;
@@ -12,7 +13,7 @@ export default function HomeStudioCard({ studio }: HomeStudioCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <img 
-        src={studio.imageUrl} 
+        src={getStudioImageUrl(studio.imageUrl || studio, 'original')} 
         alt={studio.title}
         className="w-full h-48 object-cover"
       />

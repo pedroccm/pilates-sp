@@ -3,6 +3,7 @@ import { Studio } from '@/types/studio';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import PhoneButton from '@/components/PhoneButton';
 import { isWhatsAppNumber } from '@/utils/whatsapp';
+import { getStudioImageUrl } from '@/lib/image-utils';
 
 interface HomeStudioListItemProps {
   studio: Studio;
@@ -29,7 +30,7 @@ export default function HomeStudioListItem({ studio }: HomeStudioListItemProps) 
         </div>
         <div className="flex items-center space-x-4">
           <img 
-            src={studio.imageUrl} 
+            src={getStudioImageUrl(studio.imageUrl || studio, 'original')} 
             alt={studio.title}
             className="w-16 h-16 object-cover rounded"
           />

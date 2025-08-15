@@ -16,7 +16,10 @@ export const metadata: Metadata = {
   title: "Studios de Pilates",
   description: "Encontre os melhores studios de pilates em São Paulo, Rio de Janeiro, Belo Horizonte, Brasília e Curitiba",
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', type: 'image/x-icon' }
+    ],
   },
 };
 
