@@ -205,7 +205,7 @@ export default function CitySelection() {
               <button
                 key={city.code}
                 onClick={() => selectCity(city.code)}
-                className="text-left py-3 px-1 text-gray-700 hover:text-black transition-colors duration-200 border-b border-transparent hover:border-gray-200"
+                className="text-left py-3 px-1 text-gray-700 hover:text-black transition-all duration-200 border-b border-transparent hover:border-gray-200 cursor-pointer hover:bg-gray-50 rounded-md active:scale-95 active:bg-gray-100"
               >
                 {city.name}
               </button>
