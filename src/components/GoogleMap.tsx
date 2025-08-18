@@ -8,9 +8,11 @@ import { isWhatsAppNumber, getWhatsAppUrl } from '@/utils/whatsapp';
 interface GoogleMapProps {
   studios: Studio[];
   onStudioSelect?: (studio: Studio) => void;
+  fixedZoom?: number;
+  offsetY?: number;
 }
 
-export default function GoogleMap({ studios, onStudioSelect }: GoogleMapProps) {
+export default function GoogleMap({ studios, onStudioSelect, fixedZoom, offsetY = 900 }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
   const [markers, setMarkers] = useState<any[]>([]);
@@ -78,22 +80,9 @@ export default function GoogleMap({ studios, onStudioSelect }: GoogleMapProps) {
           : '';
         
         const content = `
-          <div style="max-width: 300px;">
-            <img src="${studio.imageUrl}" alt="${studio.title}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" />
+          <div style="max-width: 250px;">
             <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold;">${studio.title}</h3>
-            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-              <span style="color: #FFA500; margin-right: 8px;">${'★'.repeat(Math.floor(studio.totalScore))}${'☆'.repeat(5 - Math.floor(studio.totalScore))}</span>
-              <span style="color: #666; font-size: 14px;">(${studio.reviewsCount} avaliações)</span>
-            </div>
-            <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">${studio.neighborhood}</p>
-            <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">${studio.address}</p>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              ${whatsappButton}
-              <a href="${studio.url}" target="_blank" rel="noopener noreferrer" 
-                 style="background: #3B82F6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 14px;">
-                Ver no Maps
-              </a>
-            </div>
+            <p style="margin: 0; color: #666; font-size: 14px;">${studio.address}</p>
           </div>
         `;
 
@@ -112,19 +101,46 @@ export default function GoogleMap({ studios, onStudioSelect }: GoogleMapProps) {
 
     // Adjust map bounds to show all markers
     if (newMarkers.length > 0) {
-      const bounds = new google.maps.LatLngBounds();
-      newMarkers.forEach(marker => {
-        const position = marker.getPosition();
-        if (position) bounds.extend(position);
-      });
-      map.fitBounds(bounds);
-      
-      // Don't zoom too much for single marker
-      if (newMarkers.length === 1) {
-        map.setZoom(15);
+      if (fixedZoom !== undefined) {
+        // Use fixed zoom if provided - always center on first marker
+        const position = newMarkers[0].getPosition();
+        if (position) {
+          // Force center first, then zoom
+          setTimeout(() => {
+            // Offset the map center up so pin appears higher visually
+            const offsetPosition = {
+              lat: position.lat() - (offsetY / 111111), // Move map center up to show pin higher
+              lng: position.lng()
+            };
+            map.setCenter(offsetPosition);
+            map.setZoom(fixedZoom);
+          }, 50);
+        }
+      } else if (newMarkers.length === 1) {
+        // For single marker, center on it with fixed zoom
+        const position = newMarkers[0].getPosition();
+        if (position) {
+          setTimeout(() => {
+            // Offset the map center up so pin appears higher visually
+            const offsetPosition = {
+              lat: position.lat() - (offsetY / 111111), // Move map center up to show pin higher
+              lng: position.lng()
+            };
+            map.setCenter(offsetPosition);
+            map.setZoom(15); // Use zoom 15 as default for single markers too
+          }, 50);
+        }
+      } else {
+        // For multiple markers, use bounds
+        const bounds = new google.maps.LatLngBounds();
+        newMarkers.forEach(marker => {
+          const position = marker.getPosition();
+          if (position) bounds.extend(position);
+        });
+        map.fitBounds(bounds);
       }
     }
-  }, [map, studios, infoWindow, onStudioSelect]);
+  }, [map, studios, infoWindow, onStudioSelect, fixedZoom, offsetY]);
 
   return (
     <div className="w-full h-full bg-gray-200 rounded-lg overflow-hidden">

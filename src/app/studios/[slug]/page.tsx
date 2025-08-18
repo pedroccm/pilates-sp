@@ -195,7 +195,7 @@ export default async function StudioPage({ params }: PageProps) {
             {/* Map */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
               <div className="h-64">
-                <GoogleMap studios={[studio]} />
+                <GoogleMap studios={[studio]} fixedZoom={15} offsetY={900} />
               </div>
             </div>
 
